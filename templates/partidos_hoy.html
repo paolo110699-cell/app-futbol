@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Partidos próximos</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="contenedor dashboard">
+    <h1>Partidos próximos</h1>
+    <p>Analiza los encuentros más cercanos y detecta los eventos con mayor respaldo estadístico.</p>
+
+    <div class="resumen">
+      <div class="card-resumen">
+        <span class="label">Liga</span>
+        <strong>{{ league_name }}</strong>
+      </div>
+      <div class="card-resumen">
+        <span class="label">Temporada</span>
+        <strong>{{ season }}</strong>
+      </div>
+      <div class="card-resumen">
+        <span class="label">Rango</span>
+        <strong>{{ fecha_label }}</strong>
+      </div>
+      <div class="card-resumen">
+        <span class="label">Últimos partidos analizados</span>
+        <strong>{{ cantidad }}</strong>
+      </div>
+      <div class="card-resumen">
+        <span class="label">Umbral mínimo</span>
+        <strong>{{ umbral }}%</strong>
+      </div>
+      <div class="card-resumen">
+        <span class="label">Partidos revisados</span>
+        <strong>{{ scanned_matches }}</strong>
+      </div>
+    </div>
+
+    <hr>
+
+    {% if error %}
+      <div class="alerta-error">
+        <strong>{{ error }}</strong>
+      </div>
+    {% else %}
+      {% if partidos %}
+        {% for p in partidos %}
+          <div class="card-tabla" style="margin-bottom: 20px;">
+            <div class="partido-header">
+              <div>
+                <h2>{{ p.partido }}</h2>
+                <p>Resumen del enfrentamiento según los últimos {{ p.cantidad }} partidos de cada equipo.</p>
+              </div>
+              {% if p.mejor_evento %}
+                <div class="partido-pill">Top: {{ p.mejor_evento.valor }}%</div>
+              {% endif %}
+            </div>
+
+            {% if p.mejor_evento %}
+              <p>
+                <strong>Ítem más fuerte:</strong>
+                <span class="badge-fuerte">{{ p.mejor_evento.nombre }} — {{ p.mejor_evento.valor }}%</span>
+              </p>
+            {% endif %}
+
+            {% if p.eventos_fuertes %}
+              <div class="bloque-tabla">
+                <h3>Ítems que superan el umbral</h3>
+                <div class="tabla-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Ítem</th>
+                        <th>Probabilidad estimada</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for e in p.eventos_fuertes %}
+                      <tr>
+                        <td>{{ e.nombre }}</td>
+                        <td>{{ e.valor }}%</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            {% else %}
+              <div class="alerta-error" style="margin-top: 16px;">
+                <strong>Ningún ítem superó el umbral. Igual te muestro el ranking completo.</strong>
+              </div>
+            {% endif %}
+
+            <div class="bloque-tabla">
+              <h3>Ranking completo de ítems</h3>
+              <div class="tabla-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Ítem</th>
+                      <th>Probabilidad estimada</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for e in p.todos_los_eventos %}
+                    <tr>
+                      <td>{{ e.nombre }}</td>
+                      <td>{{ e.valor }}%</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="bloque-tabla">
+              <h3>Base usada para combinar</h3>
+              <div class="tabla-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Equipo</th>
+                      <th>Marcó 1+</th>
+                      <th>Recibió 1+</th>
+                      <th>Over 0.5 HT</th>
+                      <th>Under 4.5</th>
+                      <th>No perdió</th>
+                      <th>No ganó</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>{{ p.local }}</td>
+                      <td>{{ p.perfil_local.marco_1 }}%</td>
+                      <td>{{ p.perfil_local.recibio_1 }}%</td>
+                      <td>{{ p.perfil_local.over05_ht }}%</td>
+                      <td>{{ p.perfil_local.under_45 }}%</td>
+                      <td>{{ p.perfil_local.no_perdio }}%</td>
+                      <td>{{ p.perfil_local.no_gano }}%</td>
+                    </tr>
+                    <tr>
+                      <td>{{ p.visitante }}</td>
+                      <td>{{ p.perfil_visitante.marco_1 }}%</td>
+                      <td>{{ p.perfil_visitante.recibio_1 }}%</td>
+                      <td>{{ p.perfil_visitante.over05_ht }}%</td>
+                      <td>{{ p.perfil_visitante.under_45 }}%</td>
+                      <td>{{ p.perfil_visitante.no_perdio }}%</td>
+                      <td>{{ p.perfil_visitante.no_gano }}%</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="alerta-error">
+          <strong>No se encontraron partidos en el rango seleccionado.</strong>
+        </div>
+      {% endif %}
+    {% endif %}
+
+    <div class="acciones">
+      <a class="btn-volver" href="/">Volver</a>
+    </div>
+  </div>
+</body>
+</html>

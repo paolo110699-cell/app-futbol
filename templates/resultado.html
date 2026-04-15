@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resultado del análisis</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="contenedor dashboard">
+    <h1>Resultado del análisis</h1>
+
+    <div class="resumen">
+      <div class="card-resumen">
+        <span class="label">Equipo</span>
+        <strong>{{ equipo }}</strong>
+      </div>
+      <div class="card-resumen">
+        <span class="label">Partidos analizados</span>
+        <strong>{{ cantidad }}</strong>
+      </div>
+    </div>
+
+    <hr>
+
+    {% if error %}
+      <div class="alerta-error">
+        <strong>{{ error }}</strong>
+      </div>
+    {% else %}
+
+      <h2>Probabilidades estimadas</h2>
+
+      <div class="metricas">
+        <div class="metrica">
+          <span>Victoria</span>
+          <strong>{{ victoria }}%</strong>
+        </div>
+        <div class="metrica">
+          <span>Empate</span>
+          <strong>{{ empate }}%</strong>
+        </div>
+        <div class="metrica">
+          <span>Derrota</span>
+          <strong>{{ derrota }}%</strong>
+        </div>
+        <div class="metrica">
+          <span>Más de 1.5 goles</span>
+          <strong>{{ over15 }}%</strong>
+        </div>
+        <div class="metrica">
+          <span>Ambos anotan</span>
+          <strong>{{ btts }}%</strong>
+        </div>
+      </div>
+
+      <div class="grid-graficos">
+        <div class="card-grafico">
+          <h3>Indicadores principales</h3>
+          <canvas id="graficoProbabilidades"></canvas>
+        </div>
+
+        <div class="card-grafico">
+          <h3>Resultado de partidos</h3>
+          <canvas id="graficoResultados"></canvas>
+        </div>
+      </div>
+
+      <div class="card-grafico" style="margin-bottom: 28px;">
+        <h3>Evolución de rendimiento</h3>
+        <canvas id="graficoTendencia"></canvas>
+      </div>
+
+      <div class="card-tabla">
+        <h2>Partidos analizados</h2>
+        <div class="tabla-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Equipo</th>
+                <th>Oponente</th>
+                <th>Goles Equipo</th>
+                <th>Goles Oponente</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in partidos %}
+              <tr>
+                <td>{{ p.equipo }}</td>
+                <td>{{ p.oponente }}</td>
+                <td>{{ p.goles_equipo }}</td>
+                <td>{{ p.goles_oponente }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <script>
+        const victoria = {{ victoria|tojson }};
+        const empate = {{ empate|tojson }};
+        const derrota = {{ derrota|tojson }};
+        const over15 = {{ over15|tojson }};
+        const btts = {{ btts|tojson }};
+        const puntos = {{ puntos|tojson }};
+
+        const ctxProb = document.getElementById('graficoProbabilidades').getContext('2d');
+        new Chart(ctxProb, {
+          type: 'bar',
+          data: {
+            labels: ['Victoria', 'Empate', 'Derrota', 'Más de 1.5', 'Ambos anotan'],
+            datasets: [{
+              label: 'Porcentaje',
+              data: [victoria, empate, derrota, over15, btts],
+              borderWidth: 1,
+              borderRadius: 8
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                display: false
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return context.raw + '%';
+                  }
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                  callback: function(value) {
+                    return value + '%';
+                  }
+                }
+              }
+            }
+          }
+        });
+
+        const ctxRes = document.getElementById('graficoResultados').getContext('2d');
+        new Chart(ctxRes, {
+          type: 'doughnut',
+          data: {
+            labels: ['Victoria', 'Empate', 'Derrota'],
+            datasets: [{
+              data: [victoria, empate, derrota],
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            cutout: '60%',
+            plugins: {
+              legend: {
+                position: 'bottom'
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return context.label + ': ' + context.raw + '%';
+                  }
+                }
+              }
+            }
+          }
+        });
+
+        const ctxTrend = document.getElementById('graficoTendencia').getContext('2d');
+        new Chart(ctxTrend, {
+          type: 'line',
+          data: {
+            labels: puntos.map((_, i) => 'Partido ' + (i + 1)),
+            datasets: [{
+              label: 'Puntos por partido',
+              data: puntos,
+              tension: 0.3,
+              fill: true,
+              pointRadius: 5
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return context.raw + ' puntos';
+                  }
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  callback: function(value) {
+                    return value + ' pts';
+                  }
+                }
+              }
+            }
+          }
+        });
+      </script>
+
+    {% endif %}
+
+    <div class="acciones">
+      <a class="btn-volver" href="/">Volver</a>
+    </div>
+  </div>
+</body>
+</html>

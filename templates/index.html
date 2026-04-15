@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analizador de Fútbol</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <div class="contenedor">
+    <div style="display:grid; gap:18px; margin-bottom:26px;">
+      <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+        <span class="partido-pill">Análisis estadístico</span>
+        <span class="partido-pill">Eventos probables</span>
+        <span class="partido-pill">Diseño responsive</span>
+      </div>
+
+      <div>
+        <h1>Analizador de Probabilidades ⚽</h1>
+        <p style="max-width:780px;">
+          Evalúa equipos, detecta tendencias por liga y revisa los partidos próximos con una interfaz más clara, sobria y cómoda para celular.
+        </p>
+      </div>
+    </div>
+
+    <div class="resumen" style="margin-bottom:24px;">
+      <div class="card-resumen">
+        <span class="label">Módulo 1</span>
+        <strong>Análisis por equipo</strong>
+      </div>
+      <div class="card-resumen">
+        <span class="label">Módulo 2</span>
+        <strong>Tendencias por liga</strong>
+      </div>
+      <div class="card-resumen">
+        <span class="label">Módulo 3</span>
+        <strong>Partidos próximos</strong>
+      </div>
+    </div>
+
+    <div class="card-tabla" style="margin-bottom: 22px;">
+      <div class="partido-header">
+        <div>
+          <h2>Análisis por equipo</h2>
+          <p>Consulta el rendimiento reciente de un club y obtén una lectura rápida de sus patrones más relevantes.</p>
+        </div>
+        <span class="partido-pill">Últimos partidos</span>
+      </div>
+
+      <form method="POST" action="/analizar">
+        <div>
+          <label for="equipo">Equipo</label>
+          <input type="text" id="equipo" name="equipo" placeholder="Ejemplo: Torino" required>
+        </div>
+
+        <div>
+          <label for="cantidad_equipo">Cantidad de partidos</label>
+          <select id="cantidad_equipo" name="cantidad">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+          </select>
+        </div>
+
+        <button type="submit">Analizar equipo</button>
+      </form>
+    </div>
+
+    <div class="card-tabla" style="margin-bottom: 22px;">
+      <div class="partido-header">
+        <div>
+          <h2>Buscar equipos fuertes por liga</h2>
+          <p>Compara clubes dentro de una misma competición y encuentra los indicadores con mayor respaldo estadístico.</p>
+        </div>
+        <span class="partido-pill">Filtro por umbral</span>
+      </div>
+
+      <form method="POST" action="/analizar-liga">
+        <div>
+          <label for="liga_liga">Liga</label>
+          <select id="liga_liga" name="liga" required>
+            {% for codigo, nombre in football_data_leagues.items() %}
+              <option value="{{ codigo }}">{{ nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label for="cantidad_liga">Cantidad de partidos</label>
+          <select id="cantidad_liga" name="cantidad">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="umbral_liga">Umbral mínimo (%)</label>
+          <select id="umbral_liga" name="umbral">
+            <option value="80">80%</option>
+            <option value="85">85%</option>
+            <option value="90" selected>90%</option>
+            <option value="95">95%</option>
+            <option value="100">100%</option>
+          </select>
+        </div>
+
+        <button type="submit">Buscar equipos fuertes</button>
+      </form>
+    </div>
+
+    <div class="card-tabla">
+      <div class="partido-header">
+        <div>
+          <h2>Partidos próximos por liga</h2>
+          <p>Combina tendencias recientes de ambos equipos y detecta el ítem más fuerte de cada partido próximo.</p>
+        </div>
+        <span class="partido-pill">Comparativa de escenarios</span>
+      </div>
+
+      <form method="POST" action="/partidos-hoy">
+        <div>
+          <label for="liga_hoy">Liga</label>
+          <select id="liga_hoy" name="liga" required>
+            {% for codigo, nombre in football_data_leagues.items() %}
+              <option value="{{ codigo }}">{{ nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label for="rango_hoy">Rango</label>
+          <select id="rango_hoy" name="rango">
+            <option value="hoy" selected>Hoy</option>
+            <option value="manana">Mañana</option>
+            <option value="3dias">Próximos 3 días</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="cantidad_hoy">Últimos partidos a revisar</label>
+          <select id="cantidad_hoy" name="cantidad">
+            <option value="5" selected>5</option>
+            <option value="10">10</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="umbral_hoy">Umbral mínimo (%)</label>
+          <select id="umbral_hoy" name="umbral">
+            <option value="80">80%</option>
+            <option value="85">85%</option>
+            <option value="90" selected>90%</option>
+            <option value="95">95%</option>
+            <option value="100">100%</option>
+          </select>
+        </div>
+
+        <button type="submit">Analizar partidos</button>
+      </form>
+    </div>
+
+  </div>
+
+</body>
+</html>

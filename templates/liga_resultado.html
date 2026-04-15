@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resultados por liga</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="contenedor dashboard">
+    <div style="display:grid; gap:18px; margin-bottom:24px;">
+      <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+        <span class="partido-pill">Comparativa por liga</span>
+        <span class="partido-pill">Filtro por umbral</span>
+        <span class="partido-pill">Lectura estadística</span>
+      </div>
+
+      <div>
+        <h1>Resultados por liga</h1>
+        <p style="max-width:760px;">
+          Aquí puedes ver qué equipos presentan los indicadores más fuertes dentro de la competición seleccionada y qué tan sólidos son sus patrones recientes.
+        </p>
+      </div>
+    </div>
+
+    <div class="resumen">
+      <div class="card-resumen">
+        <span class="label">Liga</span>
+        <strong>{{ league_name }}</strong>
+      </div>
+      <div class="card-resumen">
+        <span class="label">Temporada</span>
+        <strong>{{ season }}</strong>
+      </div>
+      <div class="card-resumen">
+        <span class="label">Últimos partidos analizados</span>
+        <strong>{{ cantidad }}</strong>
+      </div>
+      <div class="card-resumen">
+        <span class="label">Umbral mínimo</span>
+        <strong>{{ umbral }}%</strong>
+      </div>
+      <div class="card-resumen">
+        <span class="label">Equipos revisados</span>
+        <strong>{{ scanned_teams }}</strong>
+      </div>
+      <div class="card-resumen">
+        <span class="label">Máximo configurado</span>
+        <strong>{{ max_teams }}</strong>
+      </div>
+    </div>
+
+    <hr>
+
+    {% if error %}
+      <div class="alerta-error">
+        <strong>{{ error }}</strong>
+      </div>
+    {% else %}
+      {% if resultados %}
+        {% for r in resultados %}
+          <div class="card-tabla" style="margin-bottom: 20px;">
+            <div class="partido-header">
+              <div>
+                <h2>{{ r.equipo }}</h2>
+                <p>Patrón más fuerte encontrado con base en los últimos {{ r.partidos_analizados }} partidos analizados.</p>
+              </div>
+              <span class="partido-pill">{{ r.mejor_valor }}%</span>
+            </div>
+
+            <p>
+              <strong>Indicador principal:</strong>
+              <span class="badge-fuerte">{{ r.mejor_indicador }}</span>
+            </p>
+
+            {% if r.indicadores_superados %}
+              <div class="bloque-tabla">
+                <h3>Indicadores que superan el umbral</h3>
+                <div class="tabla-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Indicador</th>
+                        <th>Valor</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for item in r.indicadores_superados %}
+                      <tr>
+                        <td>{{ item.nombre }}</td>
+                        <td>{{ item.valor }}%</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            {% else %}
+              <div class="alerta-error" style="margin-top: 16px;">
+                <strong>Este equipo no superó el umbral, pero aparece en el ranking por su mejor lectura reciente.</strong>
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="alerta-error">
+          <strong>No se encontraron resultados para esta consulta.</strong>
+        </div>
+      {% endif %}
+    {% endif %}
+
+    <div class="acciones">
+      <a class="btn-volver" href="/">Volver</a>
+    </div>
+  </div>
+</body>
+</html>
