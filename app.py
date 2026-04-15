@@ -73,6 +73,7 @@ def init_cache_db():
     conn.commit()
     conn.close()
 
+init_cache_db()
 
 def utc_now_iso():
     return datetime.utcnow().isoformat()
@@ -885,6 +886,5 @@ def partidos_hoy():
 import os
 
 if __name__ == "__main__":
-    init_cache_db()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
