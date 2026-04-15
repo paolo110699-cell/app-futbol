@@ -882,6 +882,7 @@ def partidos_hoy():
             error=f"Ocurrió un error inesperado: {e}"
         )
 
+init_cache_db()
 
 import os
 
